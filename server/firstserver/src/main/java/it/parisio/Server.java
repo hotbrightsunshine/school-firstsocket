@@ -29,30 +29,32 @@ public class Server
 
     public static void main( String[] args )
     {
-        socket = getSocket();
+        while(true){ // ugly but works
+            socket = getSocket();
 
-        try {
-            serversocket.close();
-            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            outputStream = new DataOutputStream(socket.getOutputStream());
-        } catch (IOException e) { }
+            try {
+                serversocket.close();
+                reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                outputStream = new DataOutputStream(socket.getOutputStream());
+            } catch (IOException e) { }
 
-        System.out.println("The connection has been successfully created.");
+            System.out.println("The connection has been successfully created.");
 
-        try {
-            message = reader.readLine();
-            System.out.println("Ho ricevuto questo messaggio: " + message);
-        } catch (IOException e) { }
+            try {
+                message = reader.readLine();
+                System.out.println("Ho ricevuto questo messaggio: " + message);
+            } catch (IOException e) { }
 
 
 
-        try {
-            outputStream.writeBytes(message.toUpperCase() + "!!!\n");
-            System.out.println("Reply message sent. ");
-        } catch (Exception e) { }
+            try {
+                outputStream.writeBytes(message.toUpperCase() + "!!!\n");
+                System.out.println("Reply message sent. ");
+            } catch (Exception e) { }
 
-        try {
-            socket.close();
-        } catch (IOException e) { }
+            try {
+                socket.close();
+            } catch (IOException e) { }
+        }
     }
 }

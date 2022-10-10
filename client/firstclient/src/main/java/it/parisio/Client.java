@@ -38,16 +38,25 @@ public class Client
 
         System.out.println("! The connection has been successfully created.");
 
-        try {
-            // Lettura da tastiera
-            System.out.print("> ");
-            Scanner scan = new Scanner(System.in);
-            message = scan.nextLine();
-            scan.close();
-            // Invio del messaggio
-            sendMessage(outputStream, message+"\n");
-            System.out.println("! Message sent.");
-        } catch (Exception e) { e.printStackTrace(); }
+        while (true){
+            try {
+                // Lettura da tastiera
+                System.out.print("> ");
+                Scanner scan = new Scanner(System.in);
+                message = scan.nextLine();
+                scan.close();
+
+                if (message == "/stop") {
+                    // Invio del messaggio
+                    sendMessage(outputStream, message+"\n");
+                    System.out.println("! Message sent.");
+                } else {
+                    sendMessage(outputStream, "DISCONNECT"+"\n");
+                    System.out.println("! Stopped by user. ");
+                    break;
+                }
+            } catch (Exception e) { e.printStackTrace(); }
+        }   
 
         try {
             String message = reader.readLine();

@@ -10,8 +10,9 @@ public class SlayThread implements Runnable{
     Socket              socket;
     BufferedReader      reader;
     DataOutputStream    outputStream;
+    Server              father;
 
-    public SlayThread(Socket _socket) throws Exception {
+    public SlayThread(Socket _socket, Server father) throws Exception {
         socket = _socket;
         reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         outputStream = new DataOutputStream(socket.getOutputStream());
@@ -22,10 +23,19 @@ public class SlayThread implements Runnable{
         System.out.println("New connection accepted (" + this.toString() + ").");
         // reply
         try {
-            String msg = reader.readLine();
-            System.out.println("Read '" + msg + "'.");
-            msg = msg.toUpperCase();
-            outputStream.writeBytes(msg + "\n");
+            while(true) {
+                String msg = reader.readLine();
+                if (msg == "DISCONNECT"){
+                    break;
+                } else if (msg == "STOP"){
+                    father.stop();
+                } else {
+                    System.out.println("Read '" + msg + "'.");
+                    msg = msg.toUpperCase();
+                    outputStream.writeBytes(msg + "\n");
+                }
+            }
+            socket.close();
         } catch (Exception e){};
         System.out.println("New connection ended (" + this.toString() + ").");
     }

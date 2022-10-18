@@ -2,6 +2,7 @@ package it.parisio;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.Scanner;
@@ -12,6 +13,7 @@ public class Client
     static  DataOutputStream    outputStream;
     static  BufferedReader      reader;
     static  String              message;
+    static  Listener            listener;
 
     public static boolean sendMessage (DataOutputStream outputStream, String message) 
     {    
@@ -20,7 +22,14 @@ public class Client
             return true;
         } catch (Exception e) { return false; }
     }
-    
+
+    public static void slay (){
+        try {
+            socket.close();
+        } catch (IOException e) {}
+        System.out.println("Client slayed.");
+    }
+
     public static void main( String[] args )
     {
 
@@ -38,7 +47,7 @@ public class Client
 
         System.out.println("! The connection has been successfully created.");
 
-        while (true){
+        while (!socket.isClosed()){
             try {
                 // Lettura da tastiera
                 System.out.print("> ");
@@ -61,9 +70,11 @@ public class Client
             try {
                 String message = reader.readLine();
                 if(message.equals("STOP")){
+                    slay();
                     break;
+                } else {
+                    System.out.println("! Received '" + message  + "'.");
                 }
-                System.out.println("! Received '" + message  + "'.");
             } catch (Exception e) { }
         }   
     }

@@ -8,35 +8,50 @@ import java.util.ArrayList;
 
 public class Server 
 {
-    static  ServerSocket            serversocket;
-    static  Socket                  socket;
-    static  BufferedReader          reader;
-    static  DataOutputStream        outputStream;
-    static  String                  message;
+    ServerSocket            serversocket;
+    Socket                  socket;
+    BufferedReader          reader;
+    DataOutputStream        outputStream;
+    String                  message;
 
-    static  ArrayList<Thread>       threadlist;
-    static ArrayList<Socket>        threadlist;
+    ArrayList<Thread>       threadlist = new ArrayList<>();
+    ArrayList<Socket>       socketlist = new ArrayList<>();
+    ArrayList<SlayThread>   slays = new ArrayList<>();
 
-    public static void launch() throws Exception {
-        serversocket = new ServerSocket(2022);
+    public void launch() {
+        try {
+            serversocket = new ServerSocket(2022);
+        } catch (Exception e) {
+            System.out.println("Unable to start.");
+        }
+
         System.out.println("Server started.");
         while(true){
-            socket = serversocket.accept();
-            SlayThread s = ;
-            Thread t = new Thread(new SlayThread(socket, Server));
-            t.start();
-            threadlist.add(t);
-            // arraylist thread per spegnerli 
+            SlayThread slay;
+            try {
+                socket = serversocket.accept();
+                slay = new SlayThread(socket, this);
+                Thread t = new Thread(slay);
+                t.start();
+    
+                threadlist.add(t);
+                slays.add(slay);
+            } catch (Exception e){
+                System.out.println("Unable to open a new socket.");
+                break;
+            };
         }
     }
 
-    public static void stop() throws Exception {
-        for (Thread thread : threadlist) {
-            thread.join();
+    public void slay() throws Exception {
+        for (SlayThread slay : slays) {
+            slay.ad_stop();
         }
+        serversocket.close();
+        System.out.println("Server slayed.");
     }
 
-    public static void main( String[] args ) throws Exception {
+    public void main( String[] args ) throws Exception {
         launch();
     }
 }

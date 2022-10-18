@@ -20,7 +20,7 @@ public class Client
             return true;
         } catch (Exception e) { return false; }
     }
-
+    
     public static void main( String[] args )
     {
 
@@ -44,27 +44,27 @@ public class Client
                 System.out.print("> ");
                 Scanner scan = new Scanner(System.in);
                 message = scan.nextLine();
-                scan.close();
 
-                if (message == "/stop") {
+                if (message.equals("/stop")) {
                     // Invio del messaggio
-                    sendMessage(outputStream, message+"\n");
-                    System.out.println("! Message sent.");
-                } else {
+                    sendMessage(outputStream, "STOPALL"+"\n");
+                    System.out.println("! Stop message sent.");
+                } else if (message.equals("/disconnect")) {
                     sendMessage(outputStream, "DISCONNECT"+"\n");
-                    System.out.println("! Stopped by user. ");
-                    break;
+                    System.out.println("! Disconnect message sent. ");
+                } else {
+                    sendMessage(outputStream, message + "\n");
+                    System.out.println("! Message sent. ");
                 }
             } catch (Exception e) { e.printStackTrace(); }
+
+            try {
+                String message = reader.readLine();
+                if(message.equals("STOP")){
+                    break;
+                }
+                System.out.println("! Received '" + message  + "'.");
+            } catch (Exception e) { }
         }   
-
-        try {
-            String message = reader.readLine();
-            System.out.println("! Received '" + message  + "'.");
-        } catch (Exception e) { }
-
-        try { 
-            socket.close();
-        } catch (Exception e) { }
     }
 }

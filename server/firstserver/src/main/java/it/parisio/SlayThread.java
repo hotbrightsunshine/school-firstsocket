@@ -12,8 +12,9 @@ public class SlayThread implements Runnable{
     DataOutputStream    outputStream;
     Server              father;
 
-    public SlayThread(Socket _socket, Server father) throws Exception {
+    public SlayThread(Socket _socket, Server server) throws Exception {
         socket = _socket;
+        father = server;
         reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         outputStream = new DataOutputStream(socket.getOutputStream());
     }
@@ -25,10 +26,14 @@ public class SlayThread implements Runnable{
         try {
             while(true) {
                 String msg = reader.readLine();
-                if (msg == "DISCONNECT"){
+                if (msg.equals("DISCONNECT")){
+                    System.out.println("Disconnect Request");
+                    ad_stop();
                     break;
-                } else if (msg == "STOP"){
-                    father.stop();
+                } else if (msg.equals("STOPALL")){
+                    System.out.println("Stop Request");
+                    father.slay();
+                    break;
                 } else {
                     System.out.println("Read '" + msg + "'.");
                     msg = msg.toUpperCase();
@@ -38,6 +43,11 @@ public class SlayThread implements Runnable{
             socket.close();
         } catch (Exception e){};
         System.out.println("New connection ended (" + this.toString() + ").");
+    }
+
+    public void ad_stop() throws Exception {
+        outputStream.writeBytes("STOP\n");
+        socket.close();
     }
     
 }

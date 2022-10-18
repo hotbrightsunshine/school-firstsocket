@@ -1,6 +1,7 @@
 package it.parisio;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 
 public class Listener implements Runnable {
 
@@ -9,8 +10,16 @@ public class Listener implements Runnable {
     boolean listen = true;
 
     @Override
-    public void run() {
-        while()
+    public void run() throws Exception {
+        while(true){
+            String message = "";
+            try {
+                message = reader.readLine();
+            } catch (IOException e) {}
+            if(message.equals("STOP")){
+                
+            }
+        }
     }
 
 }

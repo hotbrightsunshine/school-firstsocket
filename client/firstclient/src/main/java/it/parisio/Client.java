@@ -14,6 +14,7 @@ public class Client
     static  BufferedReader      reader;
     static  String              message;
     static  Listener            listener;
+    static  Thread              listenerThread;
 
     public static boolean sendMessage (DataOutputStream outputStream, String message) 
     {    
@@ -27,7 +28,34 @@ public class Client
         try {
             socket.close();
         } catch (IOException e) {}
-        System.out.println("Client slayed.");
+        synchronized (System.out) {
+            System.out.println("Client slayed.");
+        }
+    }
+
+    public static void listen (){
+        while (!socket.isClosed()){
+            // Ascolta di continuo
+            String msg = null;
+            try {
+                msg = reader.readLine();
+            } catch (IOException e) { }
+
+            if (msg == null){
+                continue;
+            } else if ( msg.equals("STOP")) {
+                slay();
+                System.exit(0);
+                //try {
+                //    listenerThread.join();
+                //} catch (InterruptedException e) { }
+                //return;
+            } else {
+                synchronized (System.out) {
+                    System.out.println("# " + msg);
+                }
+            }
+        }   
     }
 
     public static void main( String[] args )
@@ -40,42 +68,23 @@ public class Client
             socket = new Socket("localhost", 2022);
             outputStream = new DataOutputStream(socket.getOutputStream());
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            listener = new Listener(outputStream, socket);
+            listenerThread = new Thread(listener);
+
+            synchronized (System.out) {
+                System.out.println("Connection opened.");
+            }
+            listenerThread.start();
+            
+            listen();
+
+            
+
         } catch (Exception e) {
-            System.out.println("! Client was not able to establish a connection with the server. ");
+            synchronized (System.out) {
+                System.out.println("Unable to connect or send a message.");
+            };
             return;
         }
-
-        System.out.println("! The connection has been successfully created.");
-
-        while (!socket.isClosed()){
-            try {
-                // Lettura da tastiera
-                System.out.print("> ");
-                Scanner scan = new Scanner(System.in);
-                message = scan.nextLine();
-
-                if (message.equals("/stop")) {
-                    // Invio del messaggio
-                    sendMessage(outputStream, "STOPALL"+"\n");
-                    System.out.println("! Stop message sent.");
-                } else if (message.equals("/disconnect")) {
-                    sendMessage(outputStream, "DISCONNECT"+"\n");
-                    System.out.println("! Disconnect message sent. ");
-                } else {
-                    sendMessage(outputStream, message + "\n");
-                    System.out.println("! Message sent. ");
-                }
-            } catch (Exception e) { e.printStackTrace(); }
-
-            try {
-                String message = reader.readLine();
-                if(message.equals("STOP")){
-                    slay();
-                    break;
-                } else {
-                    System.out.println("! Received '" + message  + "'.");
-                }
-            } catch (Exception e) { }
-        }   
     }
 }
